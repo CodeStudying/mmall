@@ -1,6 +1,5 @@
 package com.man.mmall.util;
 
-import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
 
