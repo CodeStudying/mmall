@@ -2,6 +2,8 @@ package com.man.mmall.service;
 
 import com.man.mmall.common.ServerResponse;
 
+import java.util.List;
+
 public interface ICategoryService {
 
     ServerResponse addCategory(String categoryName, Integer parentId);
@@ -10,5 +12,5 @@ public interface ICategoryService {
 
     ServerResponse getChildrenParallelCategory(Integer categoryId);
 
-    ServerResponse selectCategoryAndChildrenById(Integer categoryId);
+    ServerResponse<List<Integer>> selectCategoryAndChildrenById(Integer categoryId);
 }
