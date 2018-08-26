@@ -6,7 +6,7 @@ import com.man.mmall.dao.UserMapper;
 import com.man.mmall.pojo.User;
 import com.man.mmall.service.IUserService;
 import com.man.mmall.util.MD5Util;
-import com.man.mmall.util.TokenCache;
+import com.man.mmall.common.TokenCache;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
