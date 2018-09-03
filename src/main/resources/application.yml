@@ -1,10 +1,4 @@
 spring:
-  datasource:
-    username: root
-    password: mantinghao7513
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/mmall?characterEncoding=utf8&useSSL=false
-
     druid:
       initial-size: 5
       min-idle: 5
@@ -23,6 +17,8 @@ spring:
       web-stat-filter:
         enabled: true
         exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
+    profiles:
+      active: '@profileActive@'
 
 
 
