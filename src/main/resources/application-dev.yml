@@ -4,4 +4,11 @@ spring:
     password: mantinghao7513
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/mmall?characterEncoding=utf8&useSSL=false
-
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0

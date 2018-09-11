@@ -6,11 +6,13 @@ import com.man.mmall.common.ServerResponse;
 import com.man.mmall.pojo.User;
 import com.man.mmall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -18,6 +20,9 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 用户登陆
@@ -28,10 +33,11 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "/login.do")
+    @SuppressWarnings("unchecked")
     public ServerResponse<User> login(String userName, String password, HttpSession session) {
         ServerResponse<User> response = userService.login(userName, password);
         if (response.isSuccess()) {
-            session.setAttribute(Const.CURRENT_USER, response.getData());
+            redisTemplate.opsForValue().set(session.getId(), response.getData(),30, TimeUnit.MINUTES);
         }
         return response;
     }
