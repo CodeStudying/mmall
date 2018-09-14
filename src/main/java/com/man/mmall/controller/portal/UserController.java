@@ -5,12 +5,16 @@ import com.man.mmall.common.ResponseCode;
 import com.man.mmall.common.ServerResponse;
 import com.man.mmall.pojo.User;
 import com.man.mmall.service.IUserService;
+import com.man.mmall.util.CookieUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
 
@@ -34,9 +38,10 @@ public class UserController {
      */
     @PostMapping(value = "/login.do")
     @SuppressWarnings("unchecked")
-    public ServerResponse<User> login(String userName, String password, HttpSession session) {
+    public ServerResponse<User> login(String userName, String password, HttpSession session, HttpServletResponse httpServletResponse) {
         ServerResponse<User> response = userService.login(userName, password);
         if (response.isSuccess()) {
+            CookieUtil.writeLoginToken(httpServletResponse, session.getId());
             redisTemplate.opsForValue().set(session.getId(), response.getData(),30, TimeUnit.MINUTES);
         }
         return response;
@@ -44,8 +49,10 @@ public class UserController {
 
 
     @PostMapping(value = "/logout.do")
-    public ServerResponse<String> logout(HttpSession session) {
-        session.removeAttribute(Const.CURRENT_USER);
+    public ServerResponse<String> logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        CookieUtil.delLoginToken(httpServletRequest, httpServletResponse);
+        redisTemplate.delete(loginToken);
         return ServerResponse.createBySuccess();
     }
 
@@ -60,9 +67,13 @@ public class UserController {
     }
 
     @PostMapping(value = "/get_user_info.do")
-    public ServerResponse<User> getUserInfo(HttpSession session) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user != null) {
+    public ServerResponse<User> getUserInfo(HttpServletRequest httpServletRequest) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
+        }
+        User user = (User) redisTemplate.opsForValue().get(loginToken);
+        if(user != null){
             return ServerResponse.createBySuccess(user);
         }
         return ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
