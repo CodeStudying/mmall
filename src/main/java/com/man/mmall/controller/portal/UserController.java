@@ -104,24 +104,29 @@ public class UserController {
     }
 
     @PostMapping(value = "/update_information.do")
-    public ServerResponse<User> update_information(HttpSession session, User user) {
-        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
-        if (currentUser == null) {
-            return ServerResponse.createByErrorMessage("用户未登录");
+    public ServerResponse<User> update_information(HttpServletRequest httpServletRequest, User user) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
         }
+        User currentUser = (User) redisTemplate.opsForValue().get(loginToken);
         user.setId(currentUser.getId());
         user.setUsername(currentUser.getUsername());
         ServerResponse<User> response = userService.updateInformation(user);
         if (response.isSuccess()) {
             response.getData().setUsername(currentUser.getUsername());
-            session.setAttribute(Const.CURRENT_USER, response.getData());
+            redisTemplate.opsForValue().set(loginToken,  response.getData(),30, TimeUnit.MINUTES);
         }
         return response;
     }
 
     @PostMapping(value = "/get_information.do")
-    public ServerResponse<User> get_information(HttpSession session){
-        User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
+    public ServerResponse<User> get_information(HttpServletRequest httpServletRequest){
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录,无法获取当前用户的信息");
+        }
+        User currentUser = (User) redisTemplate.opsForValue().get(loginToken);
         if(currentUser == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录,需要强制登录status=10");
         }
