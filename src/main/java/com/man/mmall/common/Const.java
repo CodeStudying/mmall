@@ -91,13 +91,14 @@ public class Const {
         }
     }
 
-    public enum PayPlatformEnum{
-        ALIPAY(1,"支付宝");
+    public enum PayPlatformEnum {
+        ALIPAY(1, "支付宝");
 
-        PayPlatformEnum(int code,String value){
+        PayPlatformEnum(int code, String value) {
             this.code = code;
             this.value = value;
         }
+
         private String value;
         private int code;
 
@@ -110,13 +111,14 @@ public class Const {
         }
     }
 
-    public enum PaymentTypeEnum{
-        ONLINE_PAY(1,"在线支付");
+    public enum PaymentTypeEnum {
+        ONLINE_PAY(1, "在线支付");
 
-        PaymentTypeEnum(int code,String value){
+        PaymentTypeEnum(int code, String value) {
             this.code = code;
             this.value = value;
         }
+
         private String value;
         private int code;
 
@@ -129,15 +131,19 @@ public class Const {
         }
 
 
-        public static PaymentTypeEnum codeOf(int code){
-            for(PaymentTypeEnum paymentTypeEnum : values()){
-                if(paymentTypeEnum.getCode() == code){
+        public static PaymentTypeEnum codeOf(int code) {
+            for (PaymentTypeEnum paymentTypeEnum : values()) {
+                if (paymentTypeEnum.getCode() == code) {
                     return paymentTypeEnum;
                 }
             }
             throw new RuntimeException("么有找到对应的枚举");
         }
 
+    }
+
+    public interface REDIS_LOCK {
+        String CLOSE_ORDER_TASK_LOCK = "CLOSE_ORDER_TASK_LOCK";//关闭订单的分布式锁
     }
 
 
